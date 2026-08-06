@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebGL Support Test</title>
+  <style>
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #121212;
+      color: white;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .card {
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      padding: 20px;
+      max-width: 600px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+    h1 { color: #e0e0e0; margin-top: 0; }
+    .result { 
+      margin: 20px 0;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .success { background-color: rgba(0, 128, 0, 0.2); color: #66ff66; }
+    .error { background-color: rgba(255, 0, 0, 0.2); color: #ff6666; }
+    button {
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover { background-color: #0055aa; }
+    pre { 
+      white-space: pre-wrap;
+      background-color: #252525;
+      padding: 10px;
+      border-radius: 4px;
+      overflow: auto;
+      max-height: 300px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>WebGL Support Test</h1>
+    <div id="result" class="result">Testing WebGL support...</div>
+    <div id="details"></div>
+    <button id="testButton">Run Detailed Test</button>
+  </div>
+
+  <script>
+    function checkWebGL() {
+      const resultElement = document.getElementById('result');
+      
+      try {
+        // Try to create a WebGL context
+        const canvas = document.createElement('canvas');
+        // Try WebGL2 first, then fallback to WebGL1
+        const gl = canvas.getContext('webgl2') || 
+                   canvas.getContext('webgl') || 
+                   canvas.getContext('experimental-webgl');
+        
+        if (!gl) {
+          resultElement.className = 'result error';
+          resultElement.innerHTML = '❌ WebGL is not supported in this browser';
+          return false;
+        }
+        
+        // Basic support detected, show success
+        resultElement.className = 'result success';
+        resultElement.innerHTML = '✅ WebGL is supported in this browser';
+        
+        // Get WebGL version and renderer info
+        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+        let vendorInfo = 'Unknown';
+        let rendererInfo = 'Unknown';
+        
+        if (debugInfo) {
+          vendorInfo = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+          rendererInfo = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+        }
+        
+        const version = gl.getParameter(gl.VERSION);
+        const glslVersion = gl.getParameter(gl.SHADING_LANGUAGE_VERSION);
+        
+        const details = document.getElementById('details');
+        details.innerHTML = `
+          <h3>WebGL Details:</h3>
+          <pre>
+Version: ${version}
+GLSL Version: ${glslVersion}
+Vendor: ${vendorInfo}
+Renderer: ${rendererInfo}
+          </pre>
+        `;
+        
+        return true;
+      } catch (e) {
+        resultElement.className = 'result error';
+        resultElement.innerHTML = `❌ Error detecting WebGL support: ${e.message}`;
+        return false;
+      }
+    }
+
+    // Run basic test on page load
+    checkWebGL();
+    
+    // Add click handler for detailed test
+    document.getElementById('testButton').addEventListener('click', function() {
+      const details = document.getElementById('details');
+      details.innerHTML = '<p>Running detailed WebGL capability test...</p>';
+      
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 100;
+        canvas.height = 100;
+        
+        // Try WebGL2 first, then fallback to WebGL1
+        const gl = canvas.getContext('webgl2') || 
+                   canvas.getContext('webgl') || 
+                   canvas.getContext('experimental-webgl');
+                   
+        if (!gl) {
+          details.innerHTML += '<p class="error">Could not initialize WebGL context</p>';
+          return;
+        }
+        
+        // Try to render something basic
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        
+        // Get max texture size and other limits
+        const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+        const maxViewportDims = gl.getParameter(gl.MAX_VIEWPORT_DIMS);
+        const maxRenderbufferSize = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
+        
+        // Check extensions
+        const extensions = gl.getSupportedExtensions();
+        
+        details.innerHTML = `
+          <h3>WebGL Capabilities:</h3>
+          <pre>
+Max Texture Size: ${maxTextureSize}
+Max Viewport Dimensions: ${maxViewportDims}
+Max Renderbuffer Size: ${maxRenderbufferSize}
+WebGL Context Type: ${gl instanceof WebGL2RenderingContext ? 'WebGL 2.0' : 'WebGL 1.0'}
+
+Supported Extensions (${extensions.length}):
+${extensions.slice(0, 10).join('\n')}${extensions.length > 10 ? `\n...and ${extensions.length - 10} more` : ''}
+          </pre>
+        `;
+      } catch (e) {
+        details.innerHTML += `<p class="error">Error during detailed test: ${e.message}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom base styles can be added here */
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  @apply min-h-screen;
+}
+
+/* Command Palette Animations */
+.kbar-fade-in {
+  animation: kbar-fade-in 0.2s ease-in-out;
+}
+
+.kbar-fade-out {
+  animation: kbar-fade-out 0.2s ease-in-out forwards;
+}
+
+@keyframes kbar-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes kbar-fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@layer utilities {
+  .icon-btn {
+    @apply flex h-8 w-8 items-center justify-center rounded-md hover:bg-[#2b3038] transition;
+  }
+}
