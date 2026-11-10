@@ -29,10 +29,13 @@ const Globe = () => {
     }
     
     try {
-      // Use a public token for testing if environment variable is not available
-      const mapboxToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
-      console.log('Using Mapbox token:', mapboxToken ? 'Token available' : 'No token found');
-      
+      // Vite exposes this value to browsers. Use a restricted public token only.
+      const mapboxToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN?.trim();
+      if (!mapboxToken || !mapboxToken.startsWith('pk.')) {
+        console.error('Set VITE_MAPBOX_ACCESS_TOKEN to your Mapbox public token in .env.local, then restart Vite.');
+        return;
+      }
+
       // Set the token
       mapboxgl.accessToken = mapboxToken;
       
